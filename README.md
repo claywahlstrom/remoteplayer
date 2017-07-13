@@ -12,7 +12,7 @@ The server only works on your local network and only if you are connected to WiF
 
 ## Requires
 
-[Flask](flask.pocoo.org)
+[Flask](http://flask.pocoo.org)
 
 [pack](https://github.com/claywahlstrom/pack.git)
 
