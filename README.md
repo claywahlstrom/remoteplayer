@@ -8,7 +8,7 @@ A laptop and an aux cord work best for your setup, and a mobile phone works grea
 
 ## Disclaimer
 
-The server only works on your local network and only if you are connected to WiFi.
+Currently only configured for Google Chrome when it's your default browser. Also, the server only works on your local network and only if you are connected to WiFi.
 
 ## Requires
 
