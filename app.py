@@ -28,6 +28,8 @@ import time
 import webbrowser
 
 from flask import Flask, render_template, request
+from bs4 import BeautifulSoup as Soup
+from requests import get
 
 from pack import LINUX
 from pack.web import openweb
@@ -36,20 +38,23 @@ app = Flask(__name__)
 
 browser = 'chrome'
 url = 'none'
+title = 'none'
 
 @app.route('/', methods = ['GET','POST'])
 def main():
-    global url
+    global url, title
     if request.method == 'POST':
         url = request.form['url']
         if LINUX:
             os.system('pkill chrome')
         else:
             os.system('taskkill /im {}.exe'.format(browser))
-        time.sleep(1)
+        soup = Soup(get(url).content, 'html.parser')
+        title = soup.select('#eow-title')[0].text.strip()
+        time.sleep(0.5)
         webbrowser.open(url)
         #openweb(url, browser=browser)
-    return render_template('index.html', url=url)
+    return render_template('index.html', url=url, title=title)
 
 @app.route('/template')
 def template():
