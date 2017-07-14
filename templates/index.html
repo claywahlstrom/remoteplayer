@@ -8,10 +8,11 @@
     </head>
     <body>
         <h1>Remote Playlist</h1>
-        <h3>Current: {{ url }}</h3>
+        <h3>Current URL: {{ url }}</h3>
+        <h3>Current title: {{ title }}</h3>
         <form action="/" method="POST">
             <label for="url">URL: </label>
-            <input type="text" name="url" id="url" size="30" maxlength="30" /><br /><br />
+            <input type="text" name="url" id="url" size="30" /><br /><br />
             <input type="submit" value="Submit" />
         </form>
     </body>
