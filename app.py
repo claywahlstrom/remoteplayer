@@ -50,7 +50,12 @@ def main():
         else:
             os.system('taskkill /im {}.exe'.format(browser))
         soup = Soup(get(url).content, 'html.parser')
-        title = soup.select('#eow-title')[0].text.strip()
+        try:
+            title = soup.select('#eow-title')
+        except:
+            title = soup.select('title')
+        finally:
+            title = title[0].text.strip()
         time.sleep(0.5)
         webbrowser.open(url)
         #openweb(url, browser=browser)
