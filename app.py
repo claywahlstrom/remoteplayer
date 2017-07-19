@@ -28,8 +28,8 @@ import os
 import time
 import webbrowser
 
-from flask import Flask, render_template, request
 from bs4 import BeautifulSoup as Soup
+from flask import Flask, render_template, request
 from requests import get
 
 from pack import LINUX
@@ -38,36 +38,44 @@ from pack.web import openweb
 app = Flask(__name__)
 
 browser = 'chrome'
-url = 'none'
+urls = ['none', 'none']
 title = 'none'
 
 @app.route('/', methods = ['GET','POST'])
 def main():
-    global url, title
+    global urls, title
+    flag = False
     if request.method == 'POST':
-        url = request.form['url']
-        if LINUX:
-            os.system('pkill chrome')
+        print(urls.count('none'))
+        if 'next' in request.form: # don't combine these ifs
+            if urls.count('none') == 0:
+                urls.pop(0)
+                flag = True
         else:
-            os.system('taskkill /im {}.exe'.format(browser))
-        soup = Soup(get(url).content, 'html.parser')
-        title = soup.select('#eow-title')
-        if not(title):
-            title = soup.select('title')
-        title = title[0].text.strip()
-        time.sleep(0.5)
-        webbrowser.open(url)
-        #openweb(url, browser=browser)
-    return render_template('index.html', url=url, title=title)
+            while 'none' in urls:
+                urls.remove('none')
+            urls.append(request.form['url'])
+        if len(urls) == 1 and urls.count('none') == 0:
+            urls.append('none')
+            flag = True
+        if flag:
+            if LINUX:
+                os.system('pkill ' + browser)
+            else:
+                os.system('taskkill /im {}.exe'.format(browser))
+            soup = Soup(get(urls[0]).content, 'html.parser')
+            title = soup.select('#eow-title')
+            if not(title):
+                title = soup.select('title')
+            title = title[0].text.strip()
+            time.sleep(0.25)
+            webbrowser.open(urls[0])
+    return render_template('index.html', url=urls[0], title=title, upnext=urls[1])
 
 @app.route('/template')
 def template():
     templatename = 'Template Name'
     return render_template('template.html', templatename=templatename)
-
-@app.route('/<path:path>')
-def render(path):
-    return app.send_static_file(path)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
