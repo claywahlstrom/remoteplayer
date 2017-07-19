@@ -21,6 +21,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """
 
 import os
@@ -50,12 +51,10 @@ def main():
         else:
             os.system('taskkill /im {}.exe'.format(browser))
         soup = Soup(get(url).content, 'html.parser')
-        try:
-            title = soup.select('#eow-title')
-        except:
+        title = soup.select('#eow-title')
+        if not(title):
             title = soup.select('title')
-        finally:
-            title = title[0].text.strip()
+        title = title[0].text.strip()
         time.sleep(0.5)
         webbrowser.open(url)
         #openweb(url, browser=browser)
@@ -71,6 +70,5 @@ def render(path):
     return app.send_static_file(path)
 
 if __name__ == '__main__':
-    print('This template renders static files by default')
     app.run(host='0.0.0.0')
     
