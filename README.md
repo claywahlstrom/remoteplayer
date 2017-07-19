@@ -26,4 +26,4 @@ python app.py
 ```
 
 ## Future
-A better UI with bigger buttons
+A better UI
