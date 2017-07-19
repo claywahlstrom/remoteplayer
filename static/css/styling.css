@@ -10,3 +10,8 @@ h1 {
 p {
     color: #000000;
 }
+
+input[type=submit] {
+    color: green;
+    font-size: large;
+}

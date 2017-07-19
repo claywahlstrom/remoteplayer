@@ -2,17 +2,12 @@
     <head>
         <meta charset="utf8" />
         <meta name="viewport" content="width=450, inital-scale=1" />
-        <title>Remote Playlist</title>
+        <title>Remote Player</title>
         <base href=".\" />
         <link rel="stylesheet" type="text/css" href="..\static\css\styling.css">
-        <style>
-            input[type=submit] {
-                color: green;
-            }
-        </style>
     </head>
     <body>
-        <h1>Remote Playlist</h1>
+        <h1>Remote Player</h1>
         <h3>Current URL: {{ url }}</h3>
         <h3>Current title: {{ title }}</h3>
         <form action="/" method="POST">
@@ -21,7 +16,7 @@
             <input type="submit" value="Submit" /><br /><br />
             <input type="submit" name="next" value="Next" /><br />
         </form>
-        <h3>Next up: {{ upnext }}</h3>
+        <h3>Up next: {{ upnext }}</h3>
         
     </body>
 </html>
