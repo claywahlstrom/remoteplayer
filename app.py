@@ -62,7 +62,7 @@ def main():
 
 @app.route('/template')
 def template():
-    templatename = "Template Name"
+    templatename = 'Template Name'
     return render_template('template.html', templatename=templatename)
 
 @app.route('/<path:path>')
