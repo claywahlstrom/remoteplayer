@@ -30,47 +30,47 @@ import webbrowser
 
 from bs4 import BeautifulSoup as Soup
 from flask import Flask, render_template, request
-from requests import get
+import requests
 
-from pack import LINUX
-from pack.web import openweb
+from clay import UNIX
+from clay.web import openweb
 
 app = Flask(__name__)
 
 browser = 'chrome'
-urls = ['none', 'none']
+uris = ['none', 'none']
 title = 'none'
 
 @app.route('/', methods = ['GET','POST'])
 def main():
-    global urls, title
+    global uris, title
     flag = False
     if request.method == 'POST':
-        print(urls.count('none'))
+        print(uris.count('none'))
         if 'next' in request.form: # don't combine these ifs
-            if urls.count('none') == 0:
-                urls.pop(0)
+            if uris.count('none') == 0:
+                uris.pop(0)
                 flag = True
         else:
-            while 'none' in urls:
-                urls.remove('none')
-            urls.append(request.form['url'])
-        if len(urls) == 1 and urls.count('none') == 0:
-            urls.append('none')
+            while 'none' in uris:
+                uris.remove('none')
+            uris.append(request.form['url'])
+        if len(uris) == 1 and uris.count('none') == 0:
+            uris.append('none')
             flag = True
         if flag:
-            if LINUX:
+            if UNIX:
                 os.system('pkill ' + browser)
             else:
                 os.system('taskkill /im {}.exe'.format(browser))
-            soup = Soup(get(urls[0]).content, 'html.parser')
+            soup = Soup(requests.get(uris[0]).content, 'html.parser')
             title = soup.select('#eow-title')
             if not(title):
-                title = soup.select('title')
-            title = title[0].text.strip()
+                title = soup.select('title')[0]
+            title = title.get_text(strip=True)
             time.sleep(0.25)
-            webbrowser.open(urls[0])
-    return render_template('index.html', url=urls[0], title=title, upnext=urls[1])
+            webbrowser.open(uris[0])
+    return render_template('index.html', url=uris[0], title=title, upnext=uris[1])
 
 @app.route('/template')
 def template():
@@ -78,5 +78,5 @@ def template():
     return render_template('template.html', templatename=templatename)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5004, threaded=True)
     
