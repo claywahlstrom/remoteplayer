@@ -17,7 +17,7 @@ Currently only configured for Google Chrome when it's your default browser. Also
 
 [Flask](http://flask.pocoo.org)
 
-[pack](https://github.com/claywahlstrom/pack.git)
+[clay](https://github.com/claywahlstrom/clay.git)
 
 
 ## Easiest way to run the server
