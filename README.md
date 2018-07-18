@@ -2,16 +2,17 @@
 
 ## Description
 
-Flask Web App for playing music from your phone or desktop. You don't even have to be in the room!! Just start the server, connect to it's ip-port combo on your browser, and post URLs away!
+A Flask web app for playing music from your phone or desktop. You don't even have to be in the room!! Just start the server, connect to it's ip-port combo on your browser, and add songs to the queue!
 
-A laptop and an aux cord work best for your stereo setup, and a mobile phone works great for sending music URLs to your server (includes YouTube(tm) pages).
+A laptop and an aux cord work best for your stereo setup, and a mobile phone works great for sending music URLs to your server. Extensively tested with YouTube(tm) videos.
 
 ## New features
-Playlist functionality now added: includes adding songs to the queue, skipping the current song
+Total song time and progress timer
+Add feature to submit new videos when the current one is in progress
 
 ## Disclaimer
 
-Currently only configured for Google Chrome when it's your default browser. Also, the server only works on your local network and only if you are connected to WiFi.
+Opens songs in your default browser and only runs on your local network.
 
 ## Requires
 
@@ -26,4 +27,4 @@ python app.py
 ```
 
 ## Future
-A better UI
+Add feature to pause Remote Queue
