@@ -1,22 +1,41 @@
-<html>
+<!doctype html>
+<html lang="en">
     <head>
         <meta charset="utf8" />
-        <meta name="viewport" content="width=450, inital-scale=1" />
+        <meta name="viewport" content="width=450, initial-scale=1" />
         <title>Remote Player</title>
         <base href=".\" />
         <link rel="stylesheet" type="text/css" href="..\static\css\styles.css">
+        <script src="..\static\js\Timedelta.js" type="text/javascript"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
+        <script>
+            // script receives length through template
+            function checkForVideo() {
+                var length = {{ current.length }} * 1000;
+                // set the current and progressed time to 0
+                document.getElementById("timeprogressed").innerHTML = td.toString();
+                td.distance = length;
+                document.getElementById("currenttime").innerHTML = td.toString();
+
+                if (length > 0) {
+                    startTimer(length)
+                }
+            }
+        </script>
+        <script src="..\static\js\main.js" type="text/javascript"></script>
     </head>
-    <body>
+    <body onload="checkForVideo(); setButton()">
         <h1>Remote Player</h1>
-        <h3>Current URL: {{ url }}</h3>
-        <h3>Current title: {{ title }}</h3>
+        <h3>Current Title: <span id="currenttitle">{{ current.title }}</span></h3>
+        <h3>Current URL: {{ current.url }}</h3>
+        <h3>Current length => <span id="currenttime"></span></h3>
+        <h3>Progress => <span id="timeprogressed"></span></h3>
         <form action="/" method="POST">
             <label for="url">URL: </label>
-            <input type="text" name="url" id="url" size="30" /><br /><br />
-            <input type="submit" value="Submit" /><br /><br />
-            <input type="submit" name="next" value="Next" /><br />
+            <input type="text" name="url" id="url" size="30" />
+            <input type="button" name="submit" id="submit" value="Submit" />
+            <input type="submit" name="next" id="next" value="Next" />
         </form>
-        <h3>Up next: {{ upnext }}</h3>
-        
+        <h3>Up next: <span id="upnext">{{ upnext.title }}</h3>
     </body>
 </html>
