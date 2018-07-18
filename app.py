@@ -26,10 +26,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 """
-TODO (feature): add support for Vista
-                    - open a new tab of Opera instead of restarting the BROWSER
-                    - use sys.getwindowsversion().major to detect version (note: doesn't work on unix)
-TODO (fix): prevent progressed timer from reloading/resetting the time on URL submission
+TODO (feature):
+    add support for Vista
+        - use sys.getwindowsversion().major to detect version (note: doesn't work on unix)
 
 """
 
