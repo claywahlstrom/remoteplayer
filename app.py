@@ -1,3 +1,4 @@
+
 """
 Copyright (c) 2017, Clayton Wahlstrom
 All rights reserved.
@@ -24,58 +25,142 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 
+"""
+TODO (feature): add support for Vista
+                    - open a new tab of Opera instead of restarting the BROWSER
+                    - use sys.getwindowsversion().major to detect version (note: doesn't work on unix)
+TODO (fix): prevent progressed timer from reloading/resetting the time on URL submission
+
+"""
+
 import os
+import re
 import time
 import webbrowser
 
 from bs4 import BeautifulSoup as Soup
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import requests
 
-from clay import UNIX
-from clay.web import openweb
+from clay.shell import isUnix
+from clay.web import launch
 
 app = Flask(__name__)
+app.config['ENV'] = 'development'
 
-browser = 'chrome'
-uris = ['none', 'none']
-title = 'none'
+BROWSER = 'chrome'
+PRESERVE_WINDOW = True
 
-@app.route('/', methods = ['GET','POST'])
-def main():
-    global uris, title
-    flag = False
-    if request.method == 'POST':
-        print(uris.count('none'))
-        if 'next' in request.form: # don't combine these ifs
-            if uris.count('none') == 0:
-                uris.pop(0)
-                flag = True
+class RemoteSong(object):
+
+    def __init__(self, url=None):
+        self.url = url
+        if url is None:
+            self.title = 'none'
+            self.url = 'none'
+            self.length = 0
         else:
-            while 'none' in uris:
-                uris.remove('none')
-            uris.append(request.form['url'])
-        if len(uris) == 1 and uris.count('none') == 0:
-            uris.append('none')
-            flag = True
-        if flag:
-            if UNIX:
-                os.system('pkill ' + browser)
-            else:
-                os.system('taskkill /im {}.exe'.format(browser))
-            soup = Soup(requests.get(uris[0]).content, 'html.parser')
-            title = soup.select('#eow-title')
-            if not(title):
-                title = soup.select('title')[0]
-            title = title.get_text(strip=True)
-            time.sleep(0.25)
-            webbrowser.open(uris[0])
-    return render_template('index.html', url=uris[0], title=title, upnext=uris[1])
+            self.build()
+            
+    def __repr__(self):
+        if not(self):
+            return 'RemoteSong()'
+        return f'RemoteSong(title={self.title}, url={self.url}, length={self.length})'
+            
+    def build(self):
+        soup = Soup(requests.get(self.url).content, 'html.parser')
+        title = soup.select('#eow-title')
+        if len(title) == 0:
+            title = soup.select('title')
+        self.title = title[0].get_text(strip=True)
+        self.length = get_seconds(soup=soup)
 
-@app.route('/template')
-def template():
-    templatename = 'Template Name'
-    return render_template('template.html', templatename=templatename)
+class RemoteQueue(object):
+    
+    def __init__(self):
+        self.queue = list()
+        
+    def __repr__(self):
+        if not(self):
+            return 'RemoteQueue()'
+        return 'RemoteQueue({' + (',\n' + ' ' * 13).join(str(s) for s in self.queue) + '})'
+        
+    def countoftitle(self, title):
+        return len(list(song for song in self.queue if song.title == title))
+        
+    def dequeue(self, index=0):
+        self.queue.pop(index)
+        
+    def enqueue(self, remote_song):
+        self.queue.append(remote_song)
+        
+    def peek(self, index=0):
+        return self.queue[index]
+        
+    def size(self):
+        return len(self.queue)
+    
+queue = RemoteQueue()
+
+for i in range(2):
+    queue.enqueue(RemoteSong())
+
+def get_seconds(vid=None, soup=None):
+    if soup is None:
+        soup = BS(requests.get(f'https://www.youtube.com/watch?v={vid}').content, 'html.parser')
+    seconds = re.findall('"length_seconds":"(\d+)"', soup.get_text())[0]
+    return int(seconds)
+
+def advanceQueue(add_url=None):
+    global queue, advance
+    if add_url is None:
+        form = request.form
+    else:
+        form = dict(url=add_url)
+    print('form', form)
+    if not('next' in form): # don't combine these ifs
+            print('  adding url:', form['url'])
+            for i in range(queue.countoftitle('none')):
+                queue.dequeue(-1) # remove the none-types
+            if queue.size() == 0:
+                advance = True
+            queue.enqueue(RemoteSong(url=form['url']))
+    else:
+        print('  dequeuing the current song')
+        queue.dequeue()
+        advance = True
+    if queue.peek().title == 'none':
+        queue.dequeue(0) # remove none-types between songs
+    while queue.size() < 2:
+        print('  filling a void song with none')
+        queue.enqueue(RemoteSong())
+    print(queue)
+    
+@app.route('/background_process')
+def background_process():
+    advanceQueue(add_url=request.args.get('url', 0, type=str))
+    return jsonify(title=queue.peek(1).title)
+    
+@app.route('/', methods = ['GET', 'POST'])
+def main():
+    global queue, advance
+    advance = False
+    if request.method == 'POST':
+        # print('form', request.form)
+        advanceQueue()
+        if advance and queue.countoftitle('none') != 2:
+            peek = queue.peek()
+            print('  playing the next song:', peek.title)
+            if not(PRESERVE_WINDOW):
+                if  isUnix():
+                    os.system(f'pkill {BROWSER}')
+                else:
+                    os.system(f'taskkill /im {BROWSER}.exe')
+            print('    video length =', peek.length)
+            time.sleep(0.25)
+            webbrowser.open(peek.url)
+            
+    return render_template('index.html', current=queue.peek(), upnext=queue.peek(1))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5004, threaded=True)
