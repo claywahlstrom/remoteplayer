@@ -41,8 +41,7 @@ from bs4 import BeautifulSoup as Soup
 from flask import Flask, render_template, request, jsonify
 import requests
 
-from clay.shell import isUnix
-from clay.web import launch
+from clay.shell import is_unix
 
 app = Flask(__name__)
 app.config['ENV'] = 'development'
@@ -64,7 +63,8 @@ class RemoteSong(object):
     def __repr__(self):
         if not(self):
             return 'RemoteSong()'
-        return f'RemoteSong(title={self.title}, url={self.url}, length={self.length})'
+        return 'RemoteSong(title={}, url={}, length={})' \
+            .format(self.title, self.url, self.length)
             
     def build(self):
         soup = Soup(requests.get(self.url).content, 'html.parser')
@@ -77,7 +77,7 @@ class RemoteSong(object):
 class RemoteQueue(object):
     
     def __init__(self):
-        self.queue = list()
+        self.queue = []
         
     def __repr__(self):
         if not(self):
@@ -106,7 +106,7 @@ for i in range(2):
 
 def get_seconds(vid=None, soup=None):
     if soup is None:
-        soup = BS(requests.get(f'https://www.youtube.com/watch?v={vid}').content, 'html.parser')
+        soup = BS(requests.get('https://www.youtube.com/watch?v={}'.format(vid)).content, 'html.parser')
     seconds = re.findall('"length_seconds":"(\d+)"', soup.get_text())[0]
     return int(seconds)
 
@@ -151,10 +151,10 @@ def main():
             peek = queue.peek()
             print('  playing the next song:', peek.title)
             if not(PRESERVE_WINDOW):
-                if  isUnix():
-                    os.system(f'pkill {BROWSER}')
+                if  is_unix():
+                    os.system('pkill {}'.format(BROWSER))
                 else:
-                    os.system(f'taskkill /im {BROWSER}.exe')
+                    os.system('taskkill /im {}.exe'.format(BROWSER))
             print('    video length =', peek.length)
             time.sleep(0.25)
             webbrowser.open(peek.url)
