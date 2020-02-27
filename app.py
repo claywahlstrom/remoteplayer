@@ -38,10 +38,10 @@ import time
 import webbrowser
 
 from bs4 import BeautifulSoup as Soup
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, jsonify, render_template, request, jsonify
 import requests
 
-from clay.shell import is_unix
+from clay.shell.core import is_unix
 
 app = Flask(__name__)
 app.config['ENV'] = 'development'
@@ -59,13 +59,13 @@ class RemoteSong(object):
             self.length = 0
         else:
             self.build()
-            
+
     def __repr__(self):
         if not(self):
             return 'RemoteSong()'
         return 'RemoteSong(title={}, url={}, length={})' \
             .format(self.title, self.url, self.length)
-            
+
     def build(self):
         soup = Soup(requests.get(self.url).content, 'html.parser')
         title = soup.select('#eow-title')
@@ -75,30 +75,30 @@ class RemoteSong(object):
         self.length = get_seconds(soup=soup)
 
 class RemoteQueue(object):
-    
+
     def __init__(self):
         self.queue = []
-        
+
     def __repr__(self):
         if not(self):
             return 'RemoteQueue()'
         return 'RemoteQueue({' + (',\n' + ' ' * 13).join(str(s) for s in self.queue) + '})'
-        
+
     def countoftitle(self, title):
         return len(list(song for song in self.queue if song.title == title))
-        
+
     def dequeue(self, index=0):
         self.queue.pop(index)
-        
+
     def enqueue(self, remote_song):
         self.queue.append(remote_song)
-        
+
     def peek(self, index=0):
         return self.queue[index]
-        
+
     def size(self):
         return len(self.queue)
-    
+
 queue = RemoteQueue()
 
 for i in range(2):
@@ -134,12 +134,12 @@ def advanceQueue(add_url=None):
         print('  filling a void song with none')
         queue.enqueue(RemoteSong())
     print(queue)
-    
+
 @app.route('/background_process')
 def background_process():
     advanceQueue(add_url=request.args.get('url', 0, type=str))
     return jsonify(title=queue.peek(1).title)
-    
+
 @app.route('/', methods = ['GET', 'POST'])
 def main():
     global queue, advance
@@ -158,9 +158,15 @@ def main():
             print('    video length =', peek.length)
             time.sleep(0.25)
             webbrowser.open(peek.url)
-            
+
     return render_template('index.html', current=queue.peek(), upnext=queue.peek(1))
 
+@app.route('/test')
+def test():
+    resp = jsonify(success=True)
+    resp.status_code = 200
+    return resp
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5004, threaded=True)
-    
+    app.run(host='0.0.0.0', port=5009, threaded=True)
+
