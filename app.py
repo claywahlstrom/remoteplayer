@@ -41,7 +41,7 @@ from bs4 import BeautifulSoup as Soup
 from flask import Flask, jsonify, render_template, request, jsonify
 import requests
 
-from clay.shell.core import is_unix
+from clay.env import is_posix
 
 app = Flask(__name__)
 app.config['ENV'] = 'development'
@@ -151,7 +151,7 @@ def main():
             peek = queue.peek()
             print('  playing the next song:', peek.title)
             if not(PRESERVE_WINDOW):
-                if  is_unix():
+                if is_posix():
                     os.system('pkill {}'.format(BROWSER))
                 else:
                     os.system('taskkill /im {}.exe'.format(BROWSER))
