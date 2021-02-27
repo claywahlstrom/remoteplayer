@@ -40,7 +40,7 @@ Timedelta.prototype.toString = function(type) {
         (type !== "labeled" && type !== "standard")) {
         return "must enter either labeled or standard";
     }
-    if (type == "standard") {
+    if (type === "standard") {
         return this.getDays() + "d " +
             this.getPadded(this.getHours(), 2) + ":" +
             this.getPadded(this.getMinutes(), 2) + ":" +

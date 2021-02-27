@@ -22,7 +22,7 @@ function sendVideo() {
         url: $("#url").val(),
     }, function(response) {
         console.log(response.title);
-        if (document.getElementById("upnext").innerHTML == "none") {
+        if (document.getElementById("upnext").innerHTML === "none") {
             document.getElementById("upnext").innerHTML = response.title;
         }
         $("#url").val("");
@@ -37,7 +37,7 @@ function bindToSubmit() {
 }
 
 function setButton() {
-    if (document.getElementById("currenttitle").innerHTML == "none") {
+    if (document.getElementById("currenttitle").innerHTML === "none") {
         $("#submit").prop({type: "submit"});
         $("#submit").unbind("click")
     } else {
